@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/itemNews"
+        android:icon="@drawable/icon_news"
+        android:checked="true"
+        android:title="Новости" />
+
+    <item
+        android:id="@+id/itemFriends"
+        android:icon="@drawable/icon_friends"
+        android:title="Друзья"/>
+
+    <item android:id="@+id/itemExercise"
+        android:icon="@drawable/icon_exercise"
+        android:title="Тренировки"/>
+
+    <item android:id="@+id/itemMessage"
+        android:icon="@drawable/icon_message"
+        android:title="Сообщения"/>
+
+    <item android:id="@+id/itemProfile"
+        android:icon="@drawable/icon_profile"
+        android:title="Профиль"/>
+</menu>
