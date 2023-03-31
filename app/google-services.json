@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "855306588038",
+    "project_id": "sport-with-friends",
+    "storage_bucket": "sport-with-friends.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855306588038:android:9fbe40e5b1acb025cba607",
+        "android_client_info": {
+          "package_name": "com.example.sportwithfriends"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "855306588038-ffqimjl03gf6jqv8234r1jil4uvvurfp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sportwithfriends",
+            "certificate_hash": "ec9333f98c835de88e36c8c4d690b2be1cbf26c8"
+          }
+        },
+        {
+          "client_id": "855306588038-scm20us74ba552ouc13ci94jpvg9d377.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAc7UBl5LAo4wPKplzEP2uSF3qLASHwD60"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "855306588038-0393d8n625ggdtn4hc4etj62o2amlaal.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
