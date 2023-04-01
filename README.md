@@ -77,39 +77,46 @@
 
 # Окна приложения
 ## RegisteredActivity <a name="registered"></a>
+[Ссылка на код](https://github.com/n-lavash/SportWithFriends/blob/master/app/src/main/java/com/example/sportwithfriends/screens/RegisteredActivity.java)  
 При вводе электронной почты происходит проверка в реальном времени на корректность введенной информации. Если почта не соответствует заданым стандартам, показывается соответсвующее сообщение.  
 При вводе паролей происходит проверка на их сходство. Если пароли различаются, выводится сообщение об этом.  
 При нажатии на кнопку регистрации проверяется корректность данных и после этого новый пользователь записывается в список авторизированных пользователей, затем добавляется в базу данных всех пользователей с помощью сервиса Firebase.  
 При нажатии на надпись о входе, пользователю открывается окно входа.
 ## LogInActivity <a name="login"></a>
+[Ссылка на код](https://github.com/n-lavash/SportWithFriends/blob/master/app/src/main/java/com/example/sportwithfriends/screens/LogInActivity.java)  
 При нажатии на кнопку входа проверяется корректность заполненных пользователем полей. Далее с помощью сервиса Firebase сравниваются почта и пароль с уже авторизированными ранее данными, если они совпадают, то открывается главный экран.
 При нажатии на надпись о регистрации, пользователю открывается окно регистрации.
 ## MainScreenActivity <a name="main-screen"></a>
+[Ссылка на код](https://github.com/n-lavash/SportWithFriends/blob/master/app/src/main/java/com/example/sportwithfriends/screens/MainScreenActivity.java)  
 В данном окне реализованно нижнее меню, по которому пользователь может передвигаться. Реализована подгрузка необходимых фрагментов.  
 Изначально загружается фрагмент новостей. После этого, в зависимости от нажатой иконки меню, фрагменты меняются местами. При смене фрагментов происходит проверка, если пользователь нажимает на одну и ту же иконку несколько раз подряд, то замена не произойдет. 
 ## NewsFragment <a name="news"></a>
+[Ссылка на код](https://github.com/n-lavash/SportWithFriends/blob/master/app/src/main/java/com/example/sportwithfriends/screens/fragments/news/NewsFragment.java)  
 Содержит в себе recyclerview, в котором отображаются все существующие новости. Приложение получает новости из базы данных, созданной заранее с помощью сервиса Firebase.  
 [TODO: *попробовать реализовать собственное API для новостей, чтобы не перегружать сервер*]
 ## FriendsFragment <a name="friends"></a>
+[Ссылка на код](https://github.com/n-lavash/SportWithFriends/blob/master/app/src/main/java/com/example/sportwithfriends/screens/fragments/friends/FriendsFragment.java)  
 Изначально происходит проверка на существование друзей у текущего пользователя.  
 Если друзей нет, то выводится интерактивное сообщение, предлагающее воспользоваться поиском. При нажатии на сообщение, пользователь перейдет в соответствующее окно.  
 Если друзья есть, то они получаются из базы данных, созданной с помощью сервиса Firebase и выводятся в элементе recyclerview. У каждого друга есть интерактивная кнопка, позволяющая перейти в окно сообщений.
 ## ExerciseFragment <a name="exercise"></a>
+[Ссылка на код](https://github.com/n-lavash/SportWithFriends/blob/master/app/src/main/java/com/example/sportwithfriends/screens/fragments/exercise/ExerciseFragment.java)  
 Происходит проверка, если у пользователя есть тренировки, то они получаются из базы данных, созданной в Firebase и выводятся в recyclerview.  
 [TODO: *добавить вывод тренировок друзей и возможность поиска по тренировкам*]  
 При нажатии на кнопку добавления, открывается окно создания новой тренировки.
 ## AddExerciseActivity <a name="add-exercise"></a>
+[Ссылка на код](https://github.com/n-lavash/SportWithFriends/blob/master/app/src/main/java/com/example/sportwithfriends/screens/fragments/exercise/AddExerciseActivity.java)  
 Формируется выпадающий список с типами тренировок. Типы получаются из базы данных с помощью Firebase, записываются в список и вкладываются в элемент spinner.  
 Формируются календарь и циферблат для установки даты и времени с помощью классов существующих в языке библиотек.  
 При нажатии на кнопку сохранения, происходит проверка корректности заполненных полей, после которой данные записываются в объект Map и добавляются к пользователю в базу данных в поле "exercises".
 ## MessageActivity <a name="message"></a>
 (***не реализовано***)
 ## ProfileFragment <a name="profile"></a>
-Реализована кнопка выхода из аккаута, при нажатии на которую, пользователь выходит из аккаунта и ему открывается окно входа.  
-[TODO: *сделать реализацию редактирования аккаунта, *]
+[TODO: *сделать реализацию редактирования аккаунта, кнопку выхода и общие настройки приложения*]
 ## SearchActivity <a name="search"></a>
 (***не реализовано***)
 ## SearchFriendActivity <a name="search-friend"></a>
+[Ссылка на код](https://github.com/n-lavash/SportWithFriends/blob/master/app/src/main/java/com/example/sportwithfriends/screens/fragments/friends/AddFriendActivity.java)  
 В элементе searchview происходит проверка в реальном времени, если поле поиска не пустое, то появляется кнопка, запускающая поиск по введеному имени.  
 В зависимости от введенной строки, из таблицы "users" из базы данных получается список пользователей, сортированный по имени, с помощью Firebase.  
 У полученных пользователей есть кнопка добавить, которая добавляет выбранного пользователя в друзья к текущему пользователю через перезапись данных текущего пользователя в базе.
