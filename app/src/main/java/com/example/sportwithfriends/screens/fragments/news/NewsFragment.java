@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sportwithfriends.R;
 import com.example.sportwithfriends.adapters.NewsAdapter;
+import com.example.sportwithfriends.constants.TypeCollection;
 import com.example.sportwithfriends.pojo.News;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -60,7 +61,7 @@ public class NewsFragment extends Fragment {
 
         db = FirebaseFirestore.getInstance();
 
-        db.collection("news")
+        db.collection(TypeCollection.NEWS_COLLECTION)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {

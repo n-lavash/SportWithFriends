@@ -1,82 +1,50 @@
 package com.example.sportwithfriends.pojo;
 
-import java.util.List;
-
 public class User {
-    private String UID;
-    private String name;
-    private String email;
-    private String avatarUrl;
-    private List<User> friends;
-    private List<Exercise> exercises;
-    private List<Chat> chats;
+    private String userId;
+    private String userName;
+    private String userEmail;
+    private String userAvatarUrl;
 
-    public User(String UID, String name, String email, String avatarUrl, List<User> friends, List<Exercise> exercises, List<Chat> chats) {
-        this.UID = UID;
-        this.name = name;
-        this.email = email;
-        this.avatarUrl = avatarUrl;
-        this.friends = friends;
-        this.exercises = exercises;
-        this.chats = chats;
+    public User(String userId, String userName, String userEmail, String userAvatarUrl) {
+        this.userId = userId;
+        this.userName = userName;
+        this.userEmail = userEmail;
+        this.userAvatarUrl = userAvatarUrl;
     }
 
     public User() {
     }
 
-    public String getUID() {
-        return UID;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setUID(String UID) {
-        this.UID = UID;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
-    public String getName() {
-        return name;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
-    public String getEmail() {
-        return email;
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
-    public String getAvatarUrl() {
-        return avatarUrl;
+    public String getUserAvatarUrl() {
+        return userAvatarUrl;
     }
 
-    public void setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
-    }
-
-    public List<User> getFriends() {
-        return friends;
-    }
-
-    public void setFriends(List<User> friends) {
-        this.friends = friends;
-    }
-
-    public List<Exercise> getExercises() {
-        return exercises;
-    }
-
-    public void setExercises(List<Exercise> exercises) {
-        this.exercises = exercises;
-    }
-
-    public List<Chat> getChats() {
-        return chats;
-    }
-
-    public void setChats(List<Chat> chats) {
-        this.chats = chats;
+    public void setUserAvatarUrl(String userAvatarUrl) {
+        this.userAvatarUrl = userAvatarUrl;
     }
 }

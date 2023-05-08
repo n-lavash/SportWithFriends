@@ -7,9 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
@@ -23,6 +21,8 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.example.sportwithfriends.R;
+import com.example.sportwithfriends.constants.KeyNameDB;
+import com.example.sportwithfriends.constants.TypeCollection;
 import com.example.sportwithfriends.constants.TypeFragment;
 import com.example.sportwithfriends.pojo.Exercise;
 import com.example.sportwithfriends.pojo.User;
@@ -33,17 +33,14 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.Transaction;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -78,7 +75,6 @@ public class AddExerciseActivity extends AppCompatActivity {
         editTextExerciseTitle = findViewById(R.id.editTextExerciseTitle);
         editTextExerciseDescription = findViewById(R.id.editTextExerciseDescription);
         editTextExercisePlace = findViewById(R.id.editTextExercisePlace);
-        editTextExerciseCountOfPlayers = findViewById(R.id.editTextExerciseCountOfPlayers);
         spinnerExerciseType = findViewById(R.id.spinnerExerciseType);
         textViewTimeExercise = findViewById(R.id.textViewTimeExercise);
         textViewDateExercise = findViewById(R.id.textViewDateExercise);
@@ -134,23 +130,24 @@ public class AddExerciseActivity extends AppCompatActivity {
     }
 
     private void setSpinnerExerciseType() {
-        db.collection("types").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    List<String> typeList = new ArrayList<>();
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        typeList.add(Objects.requireNonNull(document.getData().get("title")).toString());
+        db.collection(TypeCollection.TYPE_OF_EXERCISE_COLLECTION).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            List<String> typeList = new ArrayList<>();
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                typeList.add(Objects.requireNonNull(document.getData().get("title")).toString());
+                            }
+                            String[] types = typeList.toArray(new String[0]);
+                            ArrayAdapter<String> adapter = new ArrayAdapter<>(AddExerciseActivity.this, android.R.layout.simple_spinner_item, types);
+                            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                            spinnerExerciseType.setAdapter(adapter);
+                        } else {
+                            Log.w("MyLog", "Error getting types of exercise ", task.getException());
+                        }
                     }
-                    String[] types = typeList.toArray(new String[0]);
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(AddExerciseActivity.this, android.R.layout.simple_spinner_item, types);
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    spinnerExerciseType.setAdapter(adapter);
-                } else {
-                    Log.w("MyLog", "Error getting types of exercise ", task.getException());
-                }
-            }
-        });
+                });
     }
 
     private void setInitialTime() {
@@ -185,10 +182,6 @@ public class AddExerciseActivity extends AppCompatActivity {
         String place = editTextExercisePlace.getText().toString().trim();
         String type = spinnerExerciseType.getSelectedItem().toString();
 
-        int countOfPlayers = 0;
-        if (!editTextExerciseCountOfPlayers.getText().toString().trim().isEmpty())
-            countOfPlayers = Integer.parseInt(editTextExerciseCountOfPlayers.getText().toString().trim());
-
         long dateTime = 0;
         if (!textViewTimeExercise.getText().toString().trim().isEmpty() && !textViewDateExercise.getText().toString().trim().isEmpty())
             dateTime = calendar.getTimeInMillis();
@@ -196,30 +189,28 @@ public class AddExerciseActivity extends AppCompatActivity {
         long dateOfCreate = System.currentTimeMillis();
 
         if (!title.isEmpty() && !description.isEmpty() && !place.isEmpty()) {
-            addExerciseToDB(title, description, place, type, countOfPlayers, dateTime, dateOfCreate);
+            addExerciseToDB(title, description, place, type, dateTime, dateOfCreate);
             return true;
-
         }
         return false;
     }
 
-    private void addExerciseToDB(String title, String description, String place, String type, int countOfPlayers, long dateTime, long dateOfCreate) {
+    private void addExerciseToDB(String title, String description, String place, String type, long dateTime, long dateOfCreate) {
         Map<String, Object> exercise = new HashMap<>();
-        exercise.put("title", title);
-        exercise.put("description", description);
-        exercise.put("place", place);
-        exercise.put("type", type);
-        exercise.put("countOfPlayers", countOfPlayers);
-        exercise.put("dateTime", dateTime);
-        exercise.put("dateOfCreate", dateOfCreate);
+        exercise.put(KeyNameDB.EXERCISE_TITLE, title);
+        exercise.put(KeyNameDB.EXERCISE_DESCRIPTION, description);
+        exercise.put(KeyNameDB.EXERCISE_PLACE, place);
+        exercise.put(KeyNameDB.TYPE_TITLE, type);
+        exercise.put(KeyNameDB.EXERCISE_DATETIME, dateTime);
+        exercise.put(KeyNameDB.DATE_OF_CREATE, dateOfCreate);
 
-        db.collection("exercises")
+        db.collection(TypeCollection.EXERCISE_COLLECTION)
                 .add(exercise)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-                        Exercise userExercise = new Exercise(title, description, dateTime, place, type, countOfPlayers, dateOfCreate);
-                        setCurrentUser(userExercise);
+                        Exercise userExercise = new Exercise(documentReference.getId(), title, description, dateTime, place, type, dateOfCreate);
+                        setExerciseForCurrentUser(userExercise);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -230,57 +221,29 @@ public class AddExerciseActivity extends AppCompatActivity {
                 });
     }
 
-    private void setCurrentUser(Exercise userExercise) {
+    private void setExerciseForCurrentUser(Exercise userExercise) {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user != null) {
-            String id = user.getUid();
+            Map<String, String> userExercises = new HashMap<>();
+            userExercises.put(KeyNameDB.EXERCISE_ID, userExercise.getId());
+            userExercises.put(KeyNameDB.USER_ID, user.getUid());
 
-            final DocumentReference docRef = db.collection("users").document(id);
-
-            db.runTransaction(new Transaction.Function<Void>() {
-                @Nullable
-                @Override
-                public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                    DocumentSnapshot snapshot = transaction.get(docRef);
-
-                        List<Exercise> exercises = (List<Exercise>) snapshot.get("exercises");
-                    if (exercises == null)
-                        exercises = new ArrayList<>();
-
-                    exercises.add(userExercise);
-
-                    transaction.update(docRef, "exercises", exercises);
-                    return null;
-                }
-            }).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void unused) {
-                    Log.d("MyLog", "success update user exercises in db");
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.d("MyLog", "error update user exercises in db", e);
-                }
-            });
+            db.collection(TypeCollection.EXERCISE_TO_USER_COLLECTION)
+                    .document()
+                    .set(userExercises)
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d("MyLog", "Error add exercise for current user into db", e);
+                        }
+                    });
         }
     }
 
-    private void updateUserInDB(User user, String idUser) {
-
-        if (!idUser.isEmpty()) {
-            db.collection("users").document(idUser).set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void unused) {
-                    Log.d("MyLog", "success update user");
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Log.d("MyLog", "fail update user", e);
-                }
-            });
-        }
-
+    public void onClickInviteFriends(View view) {
+        Intent intent = new Intent(AddExerciseActivity.this, InviteFriendsToExerciseActivity.class);
+        startActivity(intent);
+        // TODO: добавить intent с ожиданием результата, если возвращается не нулевой список,
+        //  то менять view на другой текст и записывать в список приглашенных пользователей
     }
 }

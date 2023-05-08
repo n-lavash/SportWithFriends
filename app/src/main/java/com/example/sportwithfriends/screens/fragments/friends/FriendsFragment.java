@@ -16,17 +16,27 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sportwithfriends.R;
 import com.example.sportwithfriends.adapters.FriendAdapter;
+import com.example.sportwithfriends.constants.KeyNameDB;
+import com.example.sportwithfriends.constants.TypeCollection;
 import com.example.sportwithfriends.constants.TypeFragment;
+import com.example.sportwithfriends.pojo.Exercise;
 import com.example.sportwithfriends.pojo.User;
 import com.example.sportwithfriends.screens.fragments.message.MessageActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 
 // TODO: добавить в onResume сохранение фрагмента
@@ -72,7 +82,7 @@ public class FriendsFragment extends Fragment {
 
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            setAdapterIntoRecyclerView(currentUser);
+            setFriendsAdapter(currentUser);
         }
 
         textViewNotFindUserFriends.setOnClickListener(new View.OnClickListener() {
@@ -86,36 +96,62 @@ public class FriendsFragment extends Fragment {
         friendAdapter.setOnClickItemAdapterSendMessage(new FriendAdapter.OnClickItemAdapterSendMessage() {
             @Override
             public void onClickSendMessage(int position) {
+                User friend = friendAdapter.getFriends().get(position);
                 Intent intent = new Intent(requireActivity(), MessageActivity.class);
-                intent.putExtra(TypeFragment.FRAGMENT_TYPE, TypeFragment.CHATS);
+                intent.putExtra(KeyNameDB.ID_RECIPIENT_MESSAGE, friend.getUserId());
+                intent.putExtra(KeyNameDB.USER_NAME, friend.getUserName());
                 startActivity(intent);
             }
         });
     }
 
-    private void setAdapterIntoRecyclerView(FirebaseUser currentUser) {
+    private void setFriendsAdapter(FirebaseUser currentUser) {
         final String id = currentUser.getUid();
-        db.collection("users")
-                .document(id)
-                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+
+        db.collection(TypeCollection.FRIEND_COLLECTION)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
-                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                         if (value != null) {
-                            User user = value.toObject(User.class);
-                            if (user != null) {
-                                List<User> friends = user.getFriends();
+                            List<DocumentSnapshot> snapshots = value.getDocuments();
+                            List<String> friendsId = new ArrayList<>();
 
-                                if (friends != null) {
-                                    recyclerViewFriends.setVisibility(View.VISIBLE);
-                                    textViewNotFindUserFriends.setVisibility(View.GONE);
-                                    friendAdapter.setFriends(friends);
-                                    Log.d("MyLog", "set list of friends in adapter");
-                                } else {
-                                    recyclerViewFriends.setVisibility(View.GONE);
-                                    textViewNotFindUserFriends.setVisibility(View.VISIBLE);
-                                }
+                            for (DocumentSnapshot document :
+                                    snapshots) {
+                                if (Objects.equals(document.get(KeyNameDB.USER_ID), id))
+                                    friendsId.add(Objects.requireNonNull(document.get(KeyNameDB.ANOTHER_USER_ID)).toString());
                             }
+
+                            if (!friendsId.isEmpty()) {
+                                setUsersFriends(friendsId);
+                                recyclerViewFriends.setVisibility(View.VISIBLE);
+                                textViewNotFindUserFriends.setVisibility(View.GONE);
+                            } else {
+                                recyclerViewFriends.setVisibility(View.GONE);
+                                textViewNotFindUserFriends.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void setUsersFriends(List<String> friendsId) {
+        db.collection(TypeCollection.USER_COLLECTION)
+                .whereIn(FieldPath.documentId(), friendsId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            List<User> friends = new ArrayList<>();
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                User friend = document.toObject(User.class);
+                                friend.setUserId(document.getId());
+                                friends.add(friend);
+                            }
+                            friendAdapter.setFriends(friends);
+                        } else {
+                            Log.d("MyLog", "Error getting exercises for current user: ", task.getException());
                         }
                     }
                 });

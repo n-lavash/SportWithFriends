@@ -15,24 +15,26 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sportwithfriends.R;
 import com.example.sportwithfriends.adapters.ExerciseAdapter;
+import com.example.sportwithfriends.constants.KeyNameDB;
+import com.example.sportwithfriends.constants.TypeCollection;
 import com.example.sportwithfriends.pojo.Exercise;
-import com.example.sportwithfriends.pojo.News;
-import com.example.sportwithfriends.pojo.User;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 // TODO: добавить в onResume сохранение фрагмента
 
@@ -72,14 +74,13 @@ public class ExerciseFragment extends Fragment {
         exerciseAdapter = new ExerciseAdapter();
 
         recyclerViewExercises.setAdapter(exerciseAdapter);
-        exerciseAdapter.notifyDataSetChanged();
 
         recyclerViewExercises.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
 
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            setAdapterIntoRecyclerView(currentUser);
+            setExerciseAdapter(currentUser);
         }
 
 
@@ -92,63 +93,52 @@ public class ExerciseFragment extends Fragment {
         });
     }
 
-    private void setAdapterIntoRecyclerView(FirebaseUser currentUser) {
-        final String id = currentUser.getUid();
-        db.collection("users")
-                .document(id)
-                .addSnapshotListener(new EventListener<DocumentSnapshot>() {
+    private interface OnExercisesLoadedListener {
+        void onExercisesLoaded(List<Exercise> exercises);
+    }
+
+    private void setExerciseAdapter(FirebaseUser currentUser) {
+        final String userId = currentUser.getUid();
+
+        db.collection(TypeCollection.EXERCISE_TO_USER_COLLECTION)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
-                    public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
-
+                    public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
                         if (value != null) {
-                            User user = value.toObject(User.class);
-                            if (user != null) {
-                                List<Exercise> exercises = user.getExercises();
-
-                                if (exercises != null) {
-                                    exercises.sort(new Comparator<Exercise>() {
-                                        @Override
-                                        public int compare(Exercise o1, Exercise o2) {
-                                            return Long.compare(o2.getDateOfCreate(), o1.getDateOfCreate());
-                                        }
-                                    });
-                                    exerciseAdapter.setExercises(exercises);
-                                    Log.d("MyLog", "set list of exercise in adapter");
-                                }
+                            List<DocumentSnapshot> snapshots = value.getDocuments();
+                            List<String> exerciseId = new ArrayList<>();
+                            for (DocumentSnapshot document :
+                                    snapshots) {
+                                if (Objects.equals(document.get(KeyNameDB.USER_ID), userId))
+                                    exerciseId.add(Objects.requireNonNull(document.get(KeyNameDB.EXERCISE_ID)).toString());
+                            }
+                            if (!exerciseId.isEmpty()) {
+                                setUsersExercises(exerciseId);
                             }
                         }
                     }
                 });
-//                .get()
-//                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-//                        if (task.isSuccessful()) {
-//                            User user = task.getResult().toObject(User.class);
-//
-//                            if (user != null) {
-//                                List<Exercise> exercises = user.getExercises();
-//                                if (exercises != null) {
-//                                    exerciseAdapter.setExercises(exercises);
-//                                    Log.d("MyLog", "set adapter");
-//                                }
-//                            }
-//                        } else {
-//                            Log.d("MyLog", "error get exercises by user from db", task.getException());
-//                        }
-//                    }
-//                });
-
-//        db.collection("exercises")
-//                .orderBy("dateOfCreate")
-//                .get()
-//                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                        if (task.isSuccessful()) {
-//                            List<Exercise> exercises = task.getResult().toObjects(Exercise.class);
-//                        }
-//                    }
-//                });
     }
+
+    private void setUsersExercises(List<String> exerciseId) {
+        db.collection(TypeCollection.EXERCISE_COLLECTION)
+                .whereIn(FieldPath.documentId(), exerciseId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            List<Exercise> exercises = new ArrayList<>();
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Exercise exercise = document.toObject(Exercise.class);
+                                exercises.add(exercise);
+                            }
+                            exerciseAdapter.setExercises(exercises);
+                        } else {
+                            Log.d("MyLog", "Error getting exercises for current user: ", task.getException());
+                        }
+                    }
+                });
+    }
+
 }

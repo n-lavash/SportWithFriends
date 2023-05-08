@@ -1,8 +1,6 @@
 package com.example.sportwithfriends.adapters;
 
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -46,21 +44,12 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
     public void onBindViewHolder(@NonNull ExerciseViewHolder holder, int position) {
         Exercise exercise = exercises.get(position);
 
-        holder.textViewExerciseTitle.setText(exercise.getTitle());
-        holder.textViewExerciseDescription.setText(exercise.getDescription());
-        holder.textViewPlaceOfExercise.setText(exercise.getPlace());
-        holder.textViewTypeOfExercise.setText(exercise.getType());
+        holder.textViewExerciseTitle.setText(exercise.getExerciseTitle());
+        holder.textViewExerciseDescription.setText(exercise.getExerciseDescription());
+        holder.textViewPlaceOfExercise.setText(exercise.getExercisePlace());
+        holder.textViewTypeOfExercise.setText(exercise.getTypeTitle());
 
-        int count = exercise.getCountOfPlayer();
-        if (count == 0)
-            holder.textViewCountOfExercise.setVisibility(View.INVISIBLE);
-        else {
-            holder.textViewCountOfExercise.setVisibility(View.VISIBLE);
-            holder.textViewCountOfExercise.setText(String.valueOf(count));
-        }
-
-
-        long dateTime = exercise.getDateTime();
+        long dateTime = exercise.getExerciseDateTime();
         if (dateTime == 0) {
             holder.textViewTimeOfExercise.setVisibility(View.INVISIBLE);
             holder.textViewDateOfExercise.setVisibility(View.INVISIBLE);
@@ -93,7 +82,6 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
         private TextView textViewDateOfExercise;
         private TextView textViewPlaceOfExercise;
         private TextView textViewTypeOfExercise;
-        private TextView textViewCountOfExercise;
 
         public ExerciseViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -104,7 +92,6 @@ public class ExerciseAdapter extends RecyclerView.Adapter<ExerciseAdapter.Exerci
             textViewDateOfExercise = itemView.findViewById(R.id.textViewDateOfExercise);
             textViewPlaceOfExercise = itemView.findViewById(R.id.textViewPlaceOfExercise);
             textViewTypeOfExercise = itemView.findViewById(R.id.textViewTypeOfExercise);
-            textViewCountOfExercise = itemView.findViewById(R.id.textViewCountOfExercise);
 
         }
     }

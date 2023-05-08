@@ -82,23 +82,6 @@ public class MainScreenActivity extends AppCompatActivity {
         }
     }
 
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-//        String typeFragment = sharedPreferences.getString(TypeFragment.FRAGMENT_TYPE, "");
-//        Fragment fragment = NewsFragment.newInstance();
-//
-//        if (!typeFragment.equals("")) {
-//            fragment = setFragment(fragment, typeFragment);
-//        } else {
-//            typeFragment = TypeFragment.NEWS;
-//        }
-//
-//        loadFragment(fragment, typeFragment);
-//        setSelectedMenuItem();
-//    }
-
     private Fragment setFragment(Fragment fragment, String typeFragment) {
         switch (typeFragment) {
             case TypeFragment.EXERCISES:

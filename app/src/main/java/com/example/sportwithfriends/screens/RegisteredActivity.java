@@ -16,6 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.sportwithfriends.R;
+import com.example.sportwithfriends.constants.KeyNameDB;
+import com.example.sportwithfriends.constants.TypeCollection;
 import com.example.sportwithfriends.pojo.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -127,25 +129,22 @@ public class RegisteredActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 // если регистрация прошла успешно, записываем имя пользователя вместе с почтой и паролем
                                 FirebaseUser user = mAuth.getCurrentUser();
-                                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                UserProfileChangeRequest userChangeRequest = new UserProfileChangeRequest.Builder()
                                         .setDisplayName(name)
                                         .build();
 
                                 String userUID = "";
                                 if (user != null) {
-                                    user.updateProfile(profileUpdates);
                                     userUID = user.getUid();
+
+                                    // добавляем нового пользователя в базу данных
+                                    User newUser = new User(userUID, name, email, null);
+                                    addNewUserIntoDB(newUser);
+
+                                    Intent intent = new Intent(RegisteredActivity.this, MainScreenActivity.class);
+                                    startActivity(intent);
+                                    finish();
                                 }
-
-                                // добавляем нового пользователя в базу данных
-
-                                User newUser = new User(userUID, name, email, null, null, null, null);
-                                addNewUserIntoDB(newUser);
-
-                                Intent intent = new Intent(RegisteredActivity.this, MainScreenActivity.class);
-                                startActivity(intent);
-                                finish();
-
                             } else {
                                 Toast.makeText(RegisteredActivity.this, "Ошибка регистрации", Toast.LENGTH_SHORT).show();
                                 Log.d("MyLog", "" + task.getException());
@@ -165,13 +164,11 @@ public class RegisteredActivity extends AppCompatActivity {
 
     private void addNewUserIntoDB(User user) {
         Map<String, Object> userMap = new HashMap<>();
-        userMap.put("name", user.getName());
-        userMap.put("email", user.getEmail());
-        userMap.put("avatarUrl", user.getAvatarUrl());
-        userMap.put("friends", user.getFriends());
-        userMap.put("exercises", user.getExercises());
+        userMap.put(KeyNameDB.USER_NAME, user.getUserName());
+        userMap.put(KeyNameDB.USER_EMAIL, user.getUserEmail());
+        userMap.put(KeyNameDB.USER_AVATAR_URL, user.getUserAvatarUrl());
 
-        db.collection("users").document(user.getUID())
+        db.collection(TypeCollection.USER_COLLECTION).document(user.getUserId())
                 .set(userMap)
                 .addOnFailureListener(new OnFailureListener() {
                     @Override

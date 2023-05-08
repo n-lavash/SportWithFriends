@@ -70,7 +70,7 @@ public class LogInActivity extends AppCompatActivity {
                             } else {
                                 // If sign in fails, display a message to the user.
                                 Toast.makeText(LogInActivity.this, "Ошибка входа", Toast.LENGTH_SHORT).show();
-                                Log.w("MyLog", "signInWithEmail:failure " + task.getException(), task.getException());
+                                Log.w("MyLog", "signInWithEmail:failure ", task.getException());
                             }
                         }
                     });

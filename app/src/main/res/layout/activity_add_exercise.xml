@@ -100,16 +100,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <EditText
+    <TextView
         android:id="@+id/editTextExerciseCountOfPlayers"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="8dp"
-        android:hint="Кол-во участников:"
+        android:layout_margin="9dp"
+        android:textSize="18sp"
+        android:textColor="@color/teal_700"
+        android:text="Пригласить друзей на тренировку"
+        android:onClick="onClickInviteFriends"
         app:layout_constraintTop_toBottomOf="@+id/spinnerExerciseType"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:inputType="number" />
+        app:layout_constraintEnd_toEndOf="parent"/>
 
     <Button
         android:id="@+id/buttonSaveExercise"

@@ -14,22 +14,24 @@ import android.widget.Toast;
 
 import com.example.sportwithfriends.R;
 import com.example.sportwithfriends.adapters.FriendAdapter;
+import com.example.sportwithfriends.constants.KeyNameDB;
+import com.example.sportwithfriends.constants.TypeCollection;
 import com.example.sportwithfriends.constants.TypeFragment;
-import com.example.sportwithfriends.pojo.Exercise;
 import com.example.sportwithfriends.pojo.User;
 import com.example.sportwithfriends.screens.MainScreenActivity;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.Transaction;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class AddFriendActivity extends AppCompatActivity {
@@ -83,7 +85,7 @@ public class AddFriendActivity extends AppCompatActivity {
             public void onClickAddFriend(int position) {
                 User friend = friendAdapter.getFriends().get(position);
                 addFriendToUser(friend);
-                Toast.makeText(AddFriendActivity.this, friend.getName() + " добавлен в друзья!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AddFriendActivity.this, friend.getUserName() + " добавлен в друзья!", Toast.LENGTH_SHORT).show();
                 backToFriendFragment();
             }
         });
@@ -92,26 +94,19 @@ public class AddFriendActivity extends AppCompatActivity {
     private void addFriendToUser(User friend) {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            final String currentId = currentUser.getUid();
+            Map<String, String> friends = new HashMap<>();
+            friends.put(KeyNameDB.USER_ID, currentUser.getUid());
+            friends.put(KeyNameDB.ANOTHER_USER_ID, friend.getUserId());
 
-            final DocumentReference docRef = db.collection("users").document(currentId);
-
-            db.runTransaction(new Transaction.Function<Void>() {
-                @Nullable
-                @Override
-                public Void apply(@NonNull Transaction transaction) throws FirebaseFirestoreException {
-                    DocumentSnapshot snapshot = transaction.get(docRef);
-
-                    List<User> friends = (List<User>) snapshot.get("friends");
-                    if (friends == null)
-                        friends = new ArrayList<>();
-
-                    friends.add(friend);
-
-                    transaction.update(docRef, "friends", friends);
-                    return null;
-                }
-            });
+            db.collection(TypeCollection.FRIEND_COLLECTION)
+                    .document()
+                    .set(friends)
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.d("MyLog", "Error add friend and current user into db", e);
+                        }
+                    });
         }
     }
 
@@ -125,8 +120,8 @@ public class AddFriendActivity extends AppCompatActivity {
 
         final String currentUserId = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid();
 
-         db.collection("users")
-                 .orderBy("name")
+         db.collection(TypeCollection.USER_COLLECTION)
+                 .orderBy(KeyNameDB.USER_NAME)
                 .addSnapshotListener(new EventListener<QuerySnapshot>() {
                     @Override
                     public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -138,11 +133,12 @@ public class AddFriendActivity extends AppCompatActivity {
                             for (DocumentSnapshot document : documents) {
                                 if (!currentUserId.equals(document.getId())) {
                                     User user = document.toObject(User.class);
-                                    if (user != null && user.getName().contains(query))
+                                    if (user != null && user.getUserName().contains(query)) {
+                                        user.setUserId(document.getId());
                                         searchFriend.add(user);
+                                    }
                                 }
                             }
-
                             friendAdapter.setFriends(searchFriend);
                         }
                     }

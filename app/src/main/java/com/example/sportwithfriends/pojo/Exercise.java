@@ -1,81 +1,80 @@
 package com.example.sportwithfriends.pojo;
 
 public class Exercise {
-    private String title;
-    private String description;
-    private long dateTime;
-    private String place;
-    private String type;
-    private int countOfPlayer;
+    private String id;
+    private String exerciseTitle;
+    private String exerciseDescription;
+    private long exerciseDateTime;
+    private String exercisePlace;
+    private String typeTitle;
+    private long exerciseDateOfCreate;
 
-    private long dateOfCreate;
-
-    public Exercise(String title, String description, long dateTime, String place, String type, int countOfPlayer, long dateOfCreate) {
-        this.title = title;
-        this.description = description;
-        this.dateTime = dateTime;
-        this.place = place;
-        this.type = type;
-        this.countOfPlayer = countOfPlayer;
-        this.dateOfCreate = dateOfCreate;
+    public Exercise(String id, String exerciseTitle, String exerciseDescription, long exerciseDateTime, String exercisePlace, String typeTitle, long exerciseDateOfCreate) {
+        this.id = id;
+        this.exerciseTitle = exerciseTitle;
+        this.exerciseDescription = exerciseDescription;
+        this.exerciseDateTime = exerciseDateTime;
+        this.exercisePlace = exercisePlace;
+        this.typeTitle = typeTitle;
+        this.exerciseDateOfCreate = exerciseDateOfCreate;
     }
 
     public Exercise() {
     }
 
-    public String getTitle() {
-        return title;
+    public String getExerciseTitle() {
+        return exerciseTitle;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setExerciseTitle(String exerciseTitle) {
+        this.exerciseTitle = exerciseTitle;
     }
 
-    public String getDescription() {
-        return description;
+    public String getExerciseDescription() {
+        return exerciseDescription;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setExerciseDescription(String exerciseDescription) {
+        this.exerciseDescription = exerciseDescription;
     }
 
-    public long getDateTime() {
-        return dateTime;
+    public long getExerciseDateTime() {
+        return exerciseDateTime;
     }
 
-    public void setDateTime(long dateTime) {
-        this.dateTime = dateTime;
+    public void setExerciseDateTime(long exerciseDateTime) {
+        this.exerciseDateTime = exerciseDateTime;
     }
 
-    public String getPlace() {
-        return place;
+    public String getExercisePlace() {
+        return exercisePlace;
     }
 
-    public void setPlace(String place) {
-        this.place = place;
+    public void setExercisePlace(String exercisePlace) {
+        this.exercisePlace = exercisePlace;
     }
 
-    public String getType() {
-        return type;
+    public long getExerciseDateOfCreate() {
+        return exerciseDateOfCreate;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setExerciseDateOfCreate(long exerciseDateOfCreate) {
+        this.exerciseDateOfCreate = exerciseDateOfCreate;
     }
 
-    public int getCountOfPlayer() {
-        return countOfPlayer;
+    public String getTypeTitle() {
+        return typeTitle;
     }
 
-    public void setCountOfPlayer(int countOfPlayer) {
-        this.countOfPlayer = countOfPlayer;
+    public void setTypeTitle(String typeTitle) {
+        this.typeTitle = typeTitle;
     }
 
-    public long getDateOfCreate() {
-        return dateOfCreate;
+    public String getId() {
+        return id;
     }
 
-    public void setDateOfCreate(long dateOfCreate) {
-        this.dateOfCreate = dateOfCreate;
+    public void setId(String id) {
+        this.id = id;
     }
 }
