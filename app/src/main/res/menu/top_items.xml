@@ -5,4 +5,9 @@
         android:title="Поиск"
         android:icon="@drawable/icon_search"
         app:showAsAction="always"/>
+
+    <item android:id="@+id/itemNotifications"
+        android:title="Уведомления"
+        android:icon="@drawable/icon_notification"
+        app:showAsAction="always"/>
 </menu>

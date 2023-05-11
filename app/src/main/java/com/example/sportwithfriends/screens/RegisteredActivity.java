@@ -21,15 +21,18 @@ import com.example.sportwithfriends.constants.TypeCollection;
 import com.example.sportwithfriends.pojo.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class RegisteredActivity extends AppCompatActivity {
 
@@ -96,7 +99,7 @@ public class RegisteredActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                textViewCorrectPassword.setVisibility(View.INVISIBLE);
+                textViewCorrectPassword.setVisibility(View.GONE);
 
                 String password = getPassword();
                 if (!checkEqualsPasswordAndReplayPassword(password))
@@ -136,10 +139,19 @@ public class RegisteredActivity extends AppCompatActivity {
                                 String userUID = "";
                                 if (user != null) {
                                     userUID = user.getUid();
+                                    user.updateProfile(userChangeRequest)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (!task.isSuccessful())
+                                                        Log.d("MyLog", "error update user name for current user");
+                                                }
+                                            });
 
                                     // добавляем нового пользователя в базу данных
                                     User newUser = new User(userUID, name, email, null);
                                     addNewUserIntoDB(newUser);
+                                    addTokenForUser(newUser);
 
                                     Intent intent = new Intent(RegisteredActivity.this, MainScreenActivity.class);
                                     startActivity(intent);
@@ -176,6 +188,45 @@ public class RegisteredActivity extends AppCompatActivity {
                         Log.d("MyLog", "Error add user into db", e);
                     }
                 });
+    }
+
+    private void addTokenForUser(User user) {
+
+        getTokenForUser(new OnCompleteListener<String>() {
+            @Override
+            public void onComplete(@NonNull Task<String> task) {
+                if (task.isSuccessful()) {
+                    String token = task.getResult();
+
+                    Map<String, Object> tokenMap = new HashMap<>();
+                    tokenMap.put(KeyNameDB.TOKEN_NAME, token);
+
+                    db.collection(TypeCollection.USER_TOKEN_COLLECTION).document(user.getUserId())
+                            .set(tokenMap)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful())
+                                        Log.d("MyLog", "Add token to db");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.d("MyLog", "Error add users token into db", e);
+                                }
+                            });
+
+                } else
+                    Log.d("MyLog", "Fetching FCM registration token failed", task.getException());
+            }
+        });
+    }
+
+    private void getTokenForUser(OnCompleteListener<String> listener) {
+
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(listener);
     }
 
     private boolean checkEqualsPasswordAndReplayPassword(String password) {

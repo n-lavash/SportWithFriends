@@ -6,7 +6,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -44,18 +47,33 @@ public class MainScreenActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         bottomNavigationViewMainMenu = findViewById(R.id.bottomNavigationViewMainMenu);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("channel_id", "Channel name", NotificationManager.IMPORTANCE_DEFAULT);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.top_search_item, menu);
+        getMenuInflater().inflate(R.menu.top_items, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Toast.makeText(this, "Поиск", Toast.LENGTH_SHORT).show();
-        return true;
+        switch (item.getItemId()) {
+            case R.id.itemNotifications:
+                Intent intentNotification = new Intent(MainScreenActivity.this, NotificationsActivity.class);
+                startActivity(intentNotification);
+                return true;
+            case R.id.itemSearch:
+                Intent intentSearch = new Intent(MainScreenActivity.this, SearchActivity.class);
+                startActivity(intentSearch);
+                return true;
+        }
+        return false;
     }
 
     @Override

@@ -140,11 +140,12 @@
 <!--        android:focusable="true"-->
 <!--        app:menu="@menu/end_profile_menu">-->
 
-    <TextView
-        android:id="@+id/textView4"
+
+    <Button
+        android:id="@+id/buttonSignOut"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Profile"
+        android:text="Выйти из аккаунта"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
